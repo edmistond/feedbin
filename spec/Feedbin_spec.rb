@@ -1,8 +1,10 @@
+# rubocop:disable Metrics/BlockLength
 require 'spec_helper'
 
 describe Feedbin do
   before(:all) do
     @fb = Feedbin.new('d@e.com', '12345', 'http://localhost:3002')
+    @fb.update
   end
 
   it 'initializes correctly' do
@@ -30,8 +32,8 @@ describe Feedbin do
   end
 
   it 'deletes a subscription' do
-    expect(@fb.delete_subscription(2758016)).to eq true
-    expect(@fb.subscriptions.any? { |s| s['feed_id'] == 2758016}).to eq false
+    expect(@fb.delete_subscription(2_758_016)).to eq true
+    expect(@fb.subscriptions.any? { |s| s['feed_id'] == 2_758_016 }).to eq false
   end
 
   it 'deletes all subscriptions in a tag' do
@@ -41,5 +43,11 @@ describe Feedbin do
 
   it 'should set the last updated date' do
     expect(@fb.last_updated).not_to eq nil
+  end
+
+  it 'should not update twice within five minutes' do
+    first_update = @fb.last_updated
+    @fb.update
+    expect(first_update).to eq @fb.last_updated
   end
 end
