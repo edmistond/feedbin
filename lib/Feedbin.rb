@@ -30,9 +30,9 @@ class Feedbin
 
   def subscriptions_for_tag(tag_name)
     if tag_name.nil? || tag_name == ''
-      @subscriptions.select { |s| s['tags'].nil? || s['tags'] == [] }
+      @subscriptions.select { |s| s.tags.nil? || s.tags == [] }
     else
-      @subscriptions.select { |s| s['tags'].include?(tag_name) }
+      @subscriptions.select { |s| s.tags.include?(tag_name) }
     end
   end
 
@@ -40,7 +40,7 @@ class Feedbin
     res = HTTParty.delete("#{@base_uri}/subscriptions/#{id}.json")
 
     if res.code == 204
-      @subscriptions.delete_if { |sub| sub['id'] == id }
+      @subscriptions.delete_if { |sub| sub.id == id }
       return true
     end
 
@@ -49,7 +49,7 @@ class Feedbin
 
   def delete_all_subs_for_tag(tag_name)
     subscriptions_for_tag(tag_name).each do |s|
-      delete_subscription(s['id'])
+      delete_subscription(s.id)
     end
   end
 
@@ -61,7 +61,12 @@ class Feedbin
   end
 
   def retrieve_subs
-    @subscriptions = HTTParty.get "#{@base_uri}/subscriptions.json", @options
+    sub_data = HTTParty.get "#{@base_uri}/subscriptions.json", @options
+    @subscriptions = []
+
+    sub_data.each do |s|
+      @subscriptions << Feedbin::Feed.new(s)
+    end
   end
 
   def find_sub_tags(feed_id, tags)
@@ -70,8 +75,8 @@ class Feedbin
 
   def apply_tags_to_subscriptions
     @subscriptions.each do |sub|
-      tag_info = find_sub_tags sub['feed_id'], @all_tagged
-      sub['tags'] = tag_info || []
+      tag_info = find_sub_tags sub.feed_id, @all_tagged
+      sub.tags = tag_info || []
     end
   end
 end

@@ -20,7 +20,8 @@ describe Feedbin do
   end
 
   it 'applies tags to feeds' do
-    expect(@fb.subscriptions[0]['tags']).to eq ['mac-tech']
+    first_sub = @fb.subscriptions[0]
+    expect(first_sub.tags).to eq ['mac-tech']
   end
 
   it 'gets all subscriptions for a tag' do
@@ -33,7 +34,7 @@ describe Feedbin do
 
   it 'deletes a subscription' do
     expect(@fb.delete_subscription(2_758_016)).to eq true
-    expect(@fb.subscriptions.any? { |s| s['feed_id'] == 2_758_016 }).to eq false
+    expect(@fb.subscriptions.any? { |s| s.feed_id == 2_758_016 }).to eq false
   end
 
   it 'deletes all subscriptions in a tag' do

@@ -1,5 +1,5 @@
 class Feedbin::Feed
-  attr_accessor :id, :created_at, :feed_id, :title, :feed_url, :site_url
+  attr_accessor :id, :created_at, :feed_id, :title, :feed_url, :site_url, :tags
 
   def initialize(feed_hash)
     @id = feed_hash['id']
@@ -8,5 +8,6 @@ class Feedbin::Feed
     @title = feed_hash['title']
     @feed_url = feed_hash['feed_url']
     @site_url = feed_hash['site_url']
+    @tags = nil
   end
 end
