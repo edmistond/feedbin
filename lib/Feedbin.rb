@@ -1,8 +1,10 @@
 require 'httparty'
-require 'Feedbin/version'
+require_relative './Feedbin/version'
+require_relative './Feedbin/feed'
 
 class Feedbin
-  attr_reader :email, :password, :base_uri, :all_tags, :subscriptions, :all_tagged, :last_updated
+  attr_reader :email, :password, :base_uri, :all_tags, :subscriptions,
+              :all_tagged, :last_updated
 
   def print_version
     Feedbin::VERSION
@@ -12,24 +14,23 @@ class Feedbin
     @email = email
     @password = password
     @base_uri = uri
-    @options = {basic_auth: {username: @email, password: @password}}
+    @options = { basic_auth: { username: @email, password: @password } }
 
     @last_updated = nil
-
-    update_from_feedbin
   end
 
-  def update_from_feedbin
+  def update
+    return if !@last_updated.nil? && (@last_updated + 5 * 60) > Time.now
     retrieve_tags
     retrieve_subs
     apply_tags_to_subscriptions
 
-    @last_updated = DateTime.now
+    @last_updated = Time.now
   end
 
   def subscriptions_for_tag(tag_name)
     if tag_name.nil? || tag_name == ''
-      @subscriptions.select { |s| s['tags'].nil? || s['tags'] == []}
+      @subscriptions.select { |s| s['tags'].nil? || s['tags'] == [] }
     else
       @subscriptions.select { |s| s['tags'].include?(tag_name) }
     end
@@ -53,6 +54,7 @@ class Feedbin
   end
 
   private
+
   def retrieve_tags
     @all_tagged = HTTParty.get "#{@base_uri}/taggings.json", @options
     @all_tags = @all_tagged.map { |t| t['name'] }.flatten.uniq.sort
