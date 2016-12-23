@@ -1,6 +1,7 @@
 require 'httparty'
 require_relative './Feedbin/version'
 require_relative './Feedbin/feed'
+require_relative './Feedbin/tag'
 
 class Feedbin
   attr_reader :email, :password, :base_uri, :all_tags, :subscriptions,
